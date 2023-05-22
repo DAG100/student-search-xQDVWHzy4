@@ -1,0 +1,8 @@
+- can scroll after clicking on dropdown menu field
+	- steps to reproduce:
+		- open the overlay by any method
+		- close the overlay
+		- click on a dropdown menu field
+		- done
+
+- console log  *melting face emoji*
