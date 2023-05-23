@@ -42,8 +42,6 @@ export default function Overlay(props: OverlayProps) {
 				overflow:"auto"
 			}}
 			open={open}
-			closeAfterTransition={true}
-			keepMounted={false}
 			onClick={closeModal}
 		>
 		<FadeAnim

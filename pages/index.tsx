@@ -49,7 +49,7 @@ export default function Home(props: Object) {
 	function treeHandler(event: any) {
 		console.log("Tree result received");
 		if (event.data[0] == "ft") {
-			document.body.style.overflow = "hidden"; //hotfix
+// 			document.body.style.overflow = "hidden"; //hotfix
 			let [baapu, student, bacchas] = event.data[1];
 			setCurr(<TreeCard
 				key="open"
@@ -118,18 +118,18 @@ export default function Home(props: Object) {
 
 	const clearOverlay = ()=> {
 		setCurr(undefined);
-		document.body.style.overflow = "auto"; //hotfix
+// 		document.body.style.overflow = "auto"; //hotfix
 	}
 	
 	const displayElement = (element: any) => {
 		clearOverlay();
 		setCurr(element);
-		document.body.style.overflow = "hidden"; //hotfix
+// 		document.body.style.overflow = "hidden"; //hotfix
 	}
 	
 	const displayCard = (student: StudentType) =>{
 		clearOverlay();
-		document.body.style.overflow = "hidden"; //hotfix
+// 		document.body.style.overflow = "hidden"; //hotfix
 		setCurr(<SCard
 			compact={false}
 			data={student}

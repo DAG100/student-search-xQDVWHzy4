@@ -1,8 +1,3 @@
-- can scroll after clicking on dropdown menu field
-	- steps to reproduce:
-		- open the overlay by any method
-		- close the overlay
-		- click on a dropdown menu field
-		- done
-
 - console log  *melting face emoji*
+
+- favicon not showing on GHP - manifest being searched for at domain, not at path - check how to configure this

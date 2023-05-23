@@ -62,9 +62,7 @@ function Display(props: DisplayProps) {
 		<div>
 			<div id="count"><Card>{students.length} {students.length === 1 ? "result" : "results"} found</Card></div>
 			<FadeAnim myname="display">
-			{students.length > 3000 
-				?<Card key="toomuch" style={{position:"absolute"}}>Too many results. Please narrow down your search.</Card>
-				: students.slice(0,pos)}
+			{students.slice(0,pos)}
 			</FadeAnim>	
 		</div>);
 }
