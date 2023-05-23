@@ -2,6 +2,7 @@
 const withPWA = require("next-pwa")({
 	dest:"public",
 	disable:false,
+	basePath: process.env.NEXT_PUBLIC_BASE_PATH,
 	runtimeCaching: [//next-pwa selects first matching pattern - check cache.js in the next-pwa github repo to see the default list
 	//issue: workbox does not cache POST requests - or does it???
 // 		{ //these two need to be here so that pictures/etc. are not cached
