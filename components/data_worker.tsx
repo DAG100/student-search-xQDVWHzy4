@@ -84,6 +84,7 @@ async function fetch_student_data() { //WILL throw errors when something goes wr
     })).access_token;
     console.log(`Access token:`);
     console.log(access_token);
+    if (access_token === undefined) {throw new Error("Access token undefined");}
     const student_data = (await fetch(`https://ap-south-1.aws.data.mongodb-api.com/app/${config.APP_ID}/endpoint/data/v1/action/find`, {
         method: 'POST',
         headers: {
@@ -100,7 +101,8 @@ async function fetch_student_data() { //WILL throw errors when something goes wr
 	}).then(res => res.json())).documents;
 	console.log("Testing method")
 	console.log(student_data);
-	return student_data;
+	if (!Array.isArray(student_data)) {throw new Error("Student data undefined")}
+ 	return student_data;
 }
 
 
