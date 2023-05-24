@@ -172,6 +172,7 @@ async function check_IDB() {
 		trxn.objectStore("students").openCursor().onsuccess = (event) => {
 			let cursor = event.target?.result;
 			if (cursor) {//if there is an entry
+				if (!Array.isArray(cursor.value.students)) {throw new Error("IDB entry is improper")}
 				console.log("Found the students data locally");
 				resolve(cursor.value.students);
 	// 			console.log("Dumping value of students to console");
