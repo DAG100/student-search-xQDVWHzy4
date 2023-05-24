@@ -71,7 +71,10 @@ export default function Home(props: Object) {
 	
 	function errorHandler(event: any) {
 		if (event.data === "Error") {
-			console.log("Worker has an error");
+			displayElement(
+				<Card><h1 style={{color:"#900"}}>A fatal error has occurred. The site will not work.</h1>
+				<p>Please check the console for more details.</p></Card>
+			);
 		}
 	}
 	
@@ -85,6 +88,7 @@ export default function Home(props: Object) {
 		searcher.onmessage = (event) => {
 			if (event.data !== "Worker ready") {
 				//error condition
+				errorHandler({data: "Error"});
 				
 			} else {
 //				console.log(searcher.onmessage);

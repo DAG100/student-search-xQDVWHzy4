@@ -70,6 +70,7 @@ var db: any | undefined = ""; //holds the reference to the IndexedDB storing stu
 // }
 
 async function fetch_student_data() { //WILL throw errors when something goes wrong - this is intentional
+	console.log("Sending access token request...");
 	const access_token = (await fetch(`https://ap-south-1.aws.realm.mongodb.com/api/client/v2.0/app/${config.APP_ID}/auth/providers/api-key/login`, {
 		method: 'POST',
 		headers: {
@@ -82,8 +83,8 @@ async function fetch_student_data() { //WILL throw errors when something goes wr
 //    	console.error("Could not fetch access token");
     	throw err;
     })).access_token;
-//     console.log(`Access token:`);
-//     console.log(access_token);
+    console.log(`Access token:`);
+    console.log(access_token);
     if (access_token === undefined) {throw new Error("Access token undefined");}
     const student_data = (await fetch(`https://ap-south-1.aws.data.mongodb-api.com/app/${config.APP_ID}/endpoint/data/v1/action/find`, {
         method: 'POST',
@@ -172,18 +173,18 @@ async function check_IDB() {
 		trxn.objectStore("students").openCursor().onsuccess = (event) => {
 			let cursor = event.target?.result;
 			if (cursor) {//if there is an entry
-				if (!Array.isArray(cursor.value.students)) {throw new Error("IDB entry is improper")}
+				if (!Array.isArray(cursor.value.students)) {reject("IDB entry is improper")}
 //				console.log("Found the students data locally");
 				resolve(cursor.value.students);
 	// 			console.log("Dumping value of students to console");
 	// 			console.log(cursor.value.students);
 			} else {
-				throw new Error("IDB is empty.");
+				reject("IDB is empty.");
 			}
 		}
 		trxn.onerror = (error) => {
 //			console.error("Error occurred when trying to access IDB.");
-			throw error;
+			reject(error);
 		}
 		//no need for an oncomplete handler
 	})
@@ -266,6 +267,7 @@ function prepare_worker() {//student data should be in a global variable called 
 // })(); //execute immediately
 
 (async function () {
+	let error_count = 0;
 	try {
 		console.log("Grabbing data locally...");
 		students = await check_IDB();
@@ -273,7 +275,8 @@ function prepare_worker() {//student data should be in a global variable called 
 		prepare_worker();
 	} catch (error) {
 		console.error("Failed to find data locally");
-		console.error(error)	
+		console.error(error);
+		error_count += 1;
 	}
 	try {
 		console.log("Fetching data from API...");
@@ -286,6 +289,7 @@ function prepare_worker() {//student data should be in a global variable called 
 	} catch (error) {
 		console.error("Failed to fetch data from API and update local DB");
 		console.error(error);
+		error_count += 1;
 	}
 	if (new_students != undefined) {
 		console.log("New data was fetched, so re-preparing worker...");
@@ -293,6 +297,11 @@ function prepare_worker() {//student data should be in a global variable called 
 		prepare_worker();
 	} else {
 		console.log("Failed to fetch new data, so worker was not re-prepared.");
+	}
+	
+	if (error_count === 2) {
+		postMessage("Error");
+		console.error("Could not find data locally or fetch it. This web app will not work.");
 	}
 	
 })(); //execute immediately
