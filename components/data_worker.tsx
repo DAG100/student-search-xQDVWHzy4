@@ -244,9 +244,12 @@ function prepare_worker() {//student data should be in a global variable called 
 //actually do everything
 (async function () {
 	try {
+		console.log("Trying to fetch data...");
 		students = await fetch_student_data();
+		console.log("Fetched data, updating IDB...");
 		update_IDB();
 	} catch (error) {
+		console.log("Failed to fetch data");
 		console.error(error)
 		try {
 			console.log("Checking if student data is locally available...")
