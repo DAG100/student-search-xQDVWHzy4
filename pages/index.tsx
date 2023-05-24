@@ -72,8 +72,9 @@ export default function Home(props: Object) {
 	function errorHandler(event: any) {
 		if (event.data === "Error") {
 			displayElement(
-				<Card><h1 style={{color:"#900"}}>A fatal error has occurred. The site will not work.</h1>
-				<p>Please check the console for more details.</p></Card>
+				<Card><h1>Data could not be retrieved locally nor fetched.</h1>
+				<h2 >Please access the website from campus or via VPN once so that student data can be downloaded and stored.</h2>
+				<p>Check the console for more details.</p></Card>
 			);
 		}
 	}
@@ -205,6 +206,8 @@ export default function Home(props: Object) {
 						<h1>How do I update the data shown here?</h1>
 						<p>{`The data here is scraped from the Office Automation Portal. The data there can be updated via the Login Based Services > Student Profile > PI form . If you have had a branch change, please go to the ID Cell and update your ID Card to update your branch.`}</p>
 						<p>The changes if any will be reflected in about a week. </p>
+						<h1>I can't see students' pictures/I can't access student data.</h1>
+						<p>Access to student data is restricted to those currently on campus or connecting via VPN. Please visit the website once via either method so that the data can be stored locally. After this, you will be able to access student data from anywhere (as long as you don't wipe your cache or local files.)</p>
 					</Card>
 				);
 			}}
