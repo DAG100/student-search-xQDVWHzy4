@@ -63,6 +63,18 @@ export default function Home(props: Object) {
 		
 	}
 	
+	function optsHandler(event: any) {
+		if (event.data[0] == "Options") {
+			setOpts(event.data[1]);
+		}
+	}
+	
+	function errorHandler(event: any) {
+		if (event.data === "Error") {
+			console.log("Worker has an error");
+		}
+	}
+	
 	useEffect(() => {
 		//on mount: set up worker handler, wait for it to initialise, and then:
 		//1. get list options from it
@@ -86,6 +98,8 @@ export default function Home(props: Object) {
 					searcher.onmessage = null; //remove this event handler
 					searcher.addEventListener("message", queryHandler);
 					searcher.addEventListener("message",treeHandler);
+					searcher.addEventListener("message", optsHandler); //when web worker updates, it will send out options again
+					searcher.addEventListener("message", errorHandler);
 				   
 				};
 				searcher.postMessage("Options");
