@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from "react";
 import Card from "@mui/material/Card";
+import Button from "@mui/material/Button";
 import Image from "./UserImage";
 import {Student} from "./commontypes";
-import {EmailRounded, InvertColorsRounded, HomeRounded, AccountBalanceRounded} from "@mui/icons-material";
+import {EmailRounded, InvertColorsRounded, HomeRounded, AccountBalanceRounded, Public } from "@mui/icons-material";
 //import "styles/SCard.css";
 
 
@@ -85,6 +86,7 @@ const SCard = React.forwardRef((props: SCardProps, ref:any) => {
 					<div><InvertColorsRounded /><p>{props.data.b}</p></div>
 					{(props.data.u.length > 0 )? <div><EmailRounded /><p><a href={`mailto:${props.data.u}@iitk.ac.in`}>{props.data.u}@iitk.ac.in</a></p></div> : ""}
 					</div>
+					<a href={`https://home.iitk.ac.in/~${props.data.u}`} target="_blank"><Button style={{flexDirection:"column"}}><Public /><br /><div>Visit Homepage</div></Button></a>
 					{props.children}
 				</Card>
 			);
