@@ -11,7 +11,7 @@ var config = {
     "collection_name": "student_data"
 }
 
-console.log("Worker instantiated");
+// console.log("Worker instantiated");
 
 //setting up the values for the fields in the Options component
 const options: Options = {
@@ -79,11 +79,11 @@ async function fetch_student_data() { //WILL throw errors when something goes wr
 			"key": config.API_KEY //read-only key
 		})
     }).then(res => res.json()).catch(err => {
-    	console.error("Could not fetch access token");
+//    	console.error("Could not fetch access token");
     	throw err;
     })).access_token;
-    console.log(`Access token:`);
-    console.log(access_token);
+//     console.log(`Access token:`);
+//     console.log(access_token);
     if (access_token === undefined) {throw new Error("Access token undefined");}
     const student_data = (await fetch(`https://ap-south-1.aws.data.mongodb-api.com/app/${config.APP_ID}/endpoint/data/v1/action/find`, {
         method: 'POST',
@@ -99,8 +99,8 @@ async function fetch_student_data() { //WILL throw errors when something goes wr
             limit: 30000
         })
 	}).then(res => res.json())).documents;
-	console.log("Testing method")
-	console.log(student_data);
+//	console.log("Testing method")
+//	console.log(student_data);
 	if (!Array.isArray(student_data)) {throw new Error("Student data undefined")}
  	return student_data;
 }
@@ -111,22 +111,22 @@ async function start_IDB() { //if this resolves, the global variable 'db' should
 		db = "";
 		const openRequest = indexedDB.open("students", 1);
 		openRequest.addEventListener("error", (error) => {
-			console.error("Failed to access local database.");
-			console.log(error);
+//			console.error("Failed to access local database.");
+//			console.log(error);
 			reject("Failed to access local database.");
 		}, {once: true});
 		openRequest.addEventListener("success", () => {
-			console.log("Successfully opened IDB");
+//			console.log("Successfully opened IDB");
 			db = openRequest.result;
 			resolve("Success");
 		}, {once: true});
 		openRequest.addEventListener("upgradeneeded", (event) => {
 			//set up the DB, and if nothing goes wrong (i.e. no errors) then resolve successfully
-			console.log("Setting up IDB");
+//			console.log("Setting up IDB");
 			db = event.target?.result;
 			const objStore = db.createObjectStore("students", {keyPath:"id", autoIncrement:true});
 			objStore.createIndex("students", "students", {unique: false}) //this will hold the array/json string of the response
-			console.log("Finished setting up IDB");
+//			console.log("Finished setting up IDB");
 			//should trigger success event handler now, so we don't resolve the promise here
 		}, {once: true});
 	})
@@ -139,28 +139,28 @@ async function update_IDB() {
 	//then, we store "students" into the DB
 	//this should all happen in one transaction so that if trxn fails, we don't end up with an empty DB or two items
 	let trxn = db.transaction(["students"], "readwrite");
-	console.log("Opened transaction");
+//	console.log("Opened transaction");
 	trxn.objectStore("students").openCursor().onsuccess = (event) => {
 		let cursor = event.target?.result;
 		if (cursor) {
-			console.log("Deleting an entry");
+//			console.log("Deleting an entry");
 			trxn.objectStore("students").delete(cursor.value.id)
 			cursor.continue()
 		} else {
 			//no more entries left - so now we add the data from the global variable "students"
-			console.log("All entries deleted");
-			console.log("Adding students to DB");
-			console.log(students);
+//			console.log("All entries deleted");
+//			console.log("Adding students to DB");
+//			console.log(students);
 			trxn.objectStore("students").add({"students": students, "key":1});
 			
 		}
 	}
 	trxn.oncomplete = () => {
-		console.log("Student data successfully saved locally.");
+//		console.log("Student data successfully saved locally.");
 	}
 	trxn.onerror = (error) => {
-		console.error("Something went wrong when trying to update the local database.");
-		console.error(error);
+//		console.error("Something went wrong when trying to update the local database.");
+//		console.error(error);
 	}
 }
 
@@ -173,7 +173,7 @@ async function check_IDB() {
 			let cursor = event.target?.result;
 			if (cursor) {//if there is an entry
 				if (!Array.isArray(cursor.value.students)) {throw new Error("IDB entry is improper")}
-				console.log("Found the students data locally");
+//				console.log("Found the students data locally");
 				resolve(cursor.value.students);
 	// 			console.log("Dumping value of students to console");
 	// 			console.log(cursor.value.students);
@@ -182,7 +182,7 @@ async function check_IDB() {
 			}
 		}
 		trxn.onerror = (error) => {
-			console.error("Error occurred when trying to access IDB.");
+//			console.error("Error occurred when trying to access IDB.");
 			throw error;
 		}
 		//no need for an oncomplete handler
@@ -192,9 +192,9 @@ async function check_IDB() {
 
 function prepare_worker() {//student data should be in a global variable called "students", and there should be a global variable "options" to take the list of options for everything
 //after filling the "options" variable, send "Worker ready" message and set up onmessage handler
-
+//
 	console.log("prepare_worker() logging students:");
-	console.log(students)
+//	console.log(students)
 	
 	let st: Student;
 	for (st of students) {
@@ -223,7 +223,7 @@ function prepare_worker() {//student data should be in a global variable called 
 	// 		console.log(options);
 			postMessage(["Options", options]);
 		} else if (Array.isArray(event.data)) {// data style: ["ft", student (an object as seen above)]
-			console.log("Family tree");
+//			console.log("Family tree");
 			let student = event.data[1];
 			let baapu = students.filter((st: Student) => (st.i === student.s))[0]; //note that this can also be undefined - this will be handled by TreeCard
 			let bacchas = check_bacchas(student.c);
@@ -232,31 +232,31 @@ function prepare_worker() {//student data should be in a global variable called 
 		} else {
 			//query stuff - should post list of satisfying students
 	// 		console.log("Normal list of students");
-			console.log(event.data);
-			console.log(check_query(event.data));
+//			console.log(event.data);
+//			console.log(check_query(event.data));
 			postMessage(["query", check_query(event.data)]);
 		
 		}
 	}
-	console.log("Worker ready");
+//	console.log("Worker ready");
 	postMessage("Worker ready");
 }
 
 //actually do everything
 (async function () {
 	try {
-		console.log("Trying to fetch data...");
+//		console.log("Trying to fetch data...");
 		students = await fetch_student_data();
-		console.log("Fetched data, updating IDB...");
+//		console.log("Fetched data, updating IDB...");
 		update_IDB();
 	} catch (error) {
-		console.log("Failed to fetch data");
-		console.error(error)
+//		console.log("Failed to fetch data");
+//		console.error(error)
 		try {
-			console.log("Checking if student data is locally available...")
+//			console.log("Checking if student data is locally available...")
 			students = await check_IDB(); //if there is an error here, everything should fail because nothing can be done
 		} catch (error) {
-			console.error("Something went wrong when checking for data locally.");
+//			console.error("Something went wrong when checking for data locally.");
 			postMessage("Error"); //so that app knows something has gone wrong and can show an error message
 			throw error; //fail evarythang
 		}
