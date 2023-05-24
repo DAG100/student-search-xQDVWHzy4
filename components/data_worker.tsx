@@ -192,8 +192,7 @@ async function check_IDB() {
 
 function prepare_worker() {//student data should be in a global variable called "students", and there should be a global variable "options" to take the list of options for everything
 //after filling the "options" variable, send "Worker ready" message and set up onmessage handler
-//
-	console.log("prepare_worker() logging students:");
+//	console.log("prepare_worker() logging students:");
 //	console.log(students)
 	
 	let st: Student;
