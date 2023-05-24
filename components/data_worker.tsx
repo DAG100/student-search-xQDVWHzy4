@@ -2,7 +2,7 @@
 import {Student, Query, Options} from  "./commontypes";
 
 var students: any[] = []
-
+var new_students: any[] | undefined = undefined;
 var config = {
     "APP_ID": "data-yubip",
     "API_KEY": "XvhvZNBWObiDyf651zDE8LsSx59zssBKVMlTHSftn566l7rXoVrbQxnW0L2p6L5A",
@@ -70,6 +70,7 @@ var db: any | undefined = ""; //holds the reference to the IndexedDB storing stu
 // }
 
 async function fetch_student_data() { //WILL throw errors when something goes wrong - this is intentional
+	console.log("Sending access token request...");
 	const access_token = (await fetch(`https://ap-south-1.aws.realm.mongodb.com/api/client/v2.0/app/${config.APP_ID}/auth/providers/api-key/login`, {
 		method: 'POST',
 		headers: {
@@ -82,8 +83,8 @@ async function fetch_student_data() { //WILL throw errors when something goes wr
 //    	console.error("Could not fetch access token");
     	throw err;
     })).access_token;
-//     console.log(`Access token:`);
-//     console.log(access_token);
+    console.log(`Access token:`);
+    console.log(access_token);
     if (access_token === undefined) {throw new Error("Access token undefined");}
     const student_data = (await fetch(`https://ap-south-1.aws.data.mongodb-api.com/app/${config.APP_ID}/endpoint/data/v1/action/find`, {
         method: 'POST',
@@ -133,7 +134,7 @@ async function start_IDB() { //if this resolves, the global variable 'db' should
 }
 
 //both of these assume that 'db' has the reference to the IndexedDB after 'start_IDB()' finishes - otherwise, will throw errors
-async function update_IDB() {
+async function update_IDB(students) {
 	await start_IDB();
 	//first: we get a cursor to see if there is already a record - if so, we delete it
 	//then, we store "students" into the DB
@@ -172,18 +173,18 @@ async function check_IDB() {
 		trxn.objectStore("students").openCursor().onsuccess = (event) => {
 			let cursor = event.target?.result;
 			if (cursor) {//if there is an entry
-				if (!Array.isArray(cursor.value.students)) {throw new Error("IDB entry is improper")}
+				if (!Array.isArray(cursor.value.students)) {reject("IDB entry is improper")}
 //				console.log("Found the students data locally");
 				resolve(cursor.value.students);
 	// 			console.log("Dumping value of students to console");
 	// 			console.log(cursor.value.students);
 			} else {
-				throw new Error("IDB is empty.");
+				reject("IDB is empty.");
 			}
 		}
 		trxn.onerror = (error) => {
 //			console.error("Error occurred when trying to access IDB.");
-			throw error;
+			reject(error);
 		}
 		//no need for an oncomplete handler
 	})
@@ -237,103 +238,73 @@ function prepare_worker() {//student data should be in a global variable called 
 		
 		}
 	}
-//	console.log("Worker ready");
+	console.log("Worker ready");
 	postMessage("Worker ready");
+	postMessage(["Options", options]); //when worker processes everything it should send out options headers again
 }
 
 //actually do everything
-(async function () {
-	try {
-//		console.log("Trying to fetch data...");
-		students = await fetch_student_data();
-//		console.log("Fetched data, updating IDB...");
-		update_IDB();
-	} catch (error) {
-//		console.log("Failed to fetch data");
-//		console.error(error)
-		try {
-//			console.log("Checking if student data is locally available...")
-			students = await check_IDB(); //if there is an error here, everything should fail because nothing can be done
-		} catch (error) {
-//			console.error("Something went wrong when checking for data locally.");
-			postMessage("Error"); //so that app knows something has gone wrong and can show an error message
-			throw error; //fail evarythang
-		}
-		
-	}
-	prepare_worker();
-})(); //execute immediately (not yet)
-
-
-
-
-
-
-// fetch_student_data()
-// 	.then(res => {
-// 	console.log("Response data:")
-// 	console.log(res);
-// 	students = res;
-// 	// update_IDB();
-// // 	check_IDB();
-// 	console.log(students)
-// 	
-// 	let st: Student;
-// 	for (st of students) {
-// 		let key: keyof Options;
-// 		for (key in options) {
-// 			if (key === "batch") {
-// 				if (!(options.batch.includes(rollToYear(st.i)))) options.batch.push(rollToYear(st.i));
-// 			} else {
-// 				let key0: "h"|"p"|"d"|"b" = key[0] as "h"|"p"|"d"|"b";
-// 				if (!options[key].includes(st[key0])) options[key].push(st[key0])
-// 			}
+// (async function () {
+// 	try {
+// //		console.log("Trying to fetch data...");
+// 		students = await fetch_student_data();
+// //		console.log("Fetched data, updating IDB...");
+// 		update_IDB();
+// 	} catch (error) {
+// //		console.log("Failed to fetch data");
+// //		console.error(error)
+// 		try {
+// //			console.log("Checking if student data is locally available...")
+// 			students = await check_IDB(); //if there is an error here, everything should fail because nothing can be done
+// 		} catch (error) {
+// //			console.error("Something went wrong when checking for data locally.");
+// 			postMessage("Error"); //so that app knows something has gone wrong and can show an error message
+// 			throw error; //fail evarythang
 // 		}
-// 	}
-// 
-// 	let key: keyof Options;
-// 	for (key in options) {
-// 		options[key].sort();	
-// 	}
-// 	//done with the values for the fields in the Options component
-// 
-// 	console.log("Worker ready");
-// 	postMessage("Worker ready");
-// 
-// 	onmessage = function (event) {
-// 	// 	console.log("Received a message.");
-// 	// 	console.log(event);
-// 	// 	console.log(event.data);
-// 		if (event.data === "ready?") postMessage("Worker ready");
-// 		else if (event.data === "Options") {
-// 	// 		console.log("Providing option headers");
-// 	// 		console.log(options);
-// 			postMessage(["Options", options]);
-// 		} else if (Array.isArray(event.data)) {// data style: ["ft", student (an object as seen above)]
-// 			console.log("Family tree");
-// 			let student = event.data[1];
-// 			let baapu = students.filter((st: Student) => (st.i === student.s))[0]; //note that this can also be undefined - this will be handled by TreeCard
-// 			let bacchas = check_bacchas(student.c);
-// 			postMessage(["ft", [baapu, student, bacchas]]);
-// 	
-// 		} else {
-// 			//query stuff - should post list of satisfying students
-// 	// 		console.log("Normal list of students");
-// 			console.log(event.data);
-// 			console.log(check_query(event.data));
-// 			postMessage(["query", check_query(event.data)]);
 // 		
-// 		}
 // 	}
-// }).catch(error => {
-// 	console.log("Something went wrong.")
-// 	console.log(error);
-// 	postMessage("Error");
-// })
+// 	prepare_worker();
+// })(); //execute immediately
 
-// fetch_student_data();
-
-
+(async function () {
+	let error_count = 0;
+	try {
+		console.log("Grabbing data locally...");
+		students = await check_IDB();
+		console.log("Preparing worker using local data...");
+		prepare_worker();
+	} catch (error) {
+		console.error("Failed to find data locally");
+		console.error(error);
+		error_count += 1;
+	}
+	try {
+		console.log("Fetching data from API...");
+		new_students = await fetch_student_data();
+		if (new_students == undefined) {
+			throw new Error("Failed to fetch student data from DB")
+		}
+		console.log("Updating local DB with API data...");
+		update_IDB(new_students);
+	} catch (error) {
+		console.error("Failed to fetch data from API and update local DB");
+		console.error(error);
+		error_count += 1;
+	}
+	if (new_students != undefined) {
+		console.log("New data was fetched, so re-preparing worker...");
+		students = new_students;
+		prepare_worker();
+	} else {
+		console.log("Failed to fetch new data, so worker was not re-prepared.");
+	}
+	
+	if (error_count === 2) {
+		postMessage("Error");
+		console.error("Could not find data locally or fetch it. This web app will not work.");
+	}
+	
+})(); //execute immediately
 
 
 

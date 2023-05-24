@@ -63,6 +63,21 @@ export default function Home(props: Object) {
 		
 	}
 	
+	function optsHandler(event: any) {
+		if (event.data[0] == "Options") {
+			setOpts(event.data[1]);
+		}
+	}
+	
+	function errorHandler(event: any) {
+		if (event.data === "Error") {
+			displayElement(
+				<Card><h1 style={{color:"#900"}}>A fatal error has occurred. The site will not work.</h1>
+				<p>Please check the console for more details.</p></Card>
+			);
+		}
+	}
+	
 	useEffect(() => {
 		//on mount: set up worker handler, wait for it to initialise, and then:
 		//1. get list options from it
@@ -73,6 +88,7 @@ export default function Home(props: Object) {
 		searcher.onmessage = (event) => {
 			if (event.data !== "Worker ready") {
 				//error condition
+				errorHandler({data: "Error"});
 				
 			} else {
 //				console.log(searcher.onmessage);
@@ -86,6 +102,8 @@ export default function Home(props: Object) {
 					searcher.onmessage = null; //remove this event handler
 					searcher.addEventListener("message", queryHandler);
 					searcher.addEventListener("message",treeHandler);
+					searcher.addEventListener("message", optsHandler); //when web worker updates, it will send out options again
+					searcher.addEventListener("message", errorHandler);
 				   
 				};
 				searcher.postMessage("Options");
