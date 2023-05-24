@@ -2,6 +2,8 @@
 	* solved because path is now top level (/)
 
 - can access pictures (GenericMale, GenericFemale) unlike original site - possibly unsolvable because no config, need to check ghp docs
+	* does this really need to be fixed?
 
 - generic pictures take a moment to load in unlike original site
+	* solved
 
