@@ -39,7 +39,7 @@ export default function Home(props: Object) {
 	});
 	
 	function queryHandler(event: any) {
-		console.log("Query result received");
+//		console.log("Query result received");
 		if (event.data[0] == "query") {
 			setStudents(event.data[1]);
 // 			setLoading(false);
@@ -47,7 +47,7 @@ export default function Home(props: Object) {
 	}
 	
 	function treeHandler(event: any) {
-		console.log("Tree result received");
+//		console.log("Tree result received");
 		if (event.data[0] == "ft") {
 // 			document.body.style.overflow = "hidden"; //hotfix
 			let [baapu, student, bacchas] = event.data[1];
@@ -67,7 +67,7 @@ export default function Home(props: Object) {
 		//on mount: set up worker handler, wait for it to initialise, and then:
 		//1. get list options from it
 		//2. set up the handlers for query and treecard
-		console.log("waiting for worker");
+//		console.log("waiting for worker");
 		searcher.postMessage("ready?");
 		searcher.onmessage = null;
 		searcher.onmessage = (event) => {
@@ -75,13 +75,13 @@ export default function Home(props: Object) {
 				//error condition
 				
 			} else {
-				console.log(searcher.onmessage);
-				console.log("Worker should be ready now");
-				console.log("geting options list");
+//				console.log(searcher.onmessage);
+//				console.log("Worker should be ready now");
+//				console.log("geting options list");
 				searcher.onmessage = (event) => {
 					if (event.data[0] != "Options") return;
 					setLoading(false);
-					console.log("options list gotten");
+//					console.log("options list gotten");
 					setOpts(event.data[1]);
 					searcher.onmessage = null; //remove this event handler
 					searcher.addEventListener("message", queryHandler);
@@ -110,7 +110,7 @@ export default function Home(props: Object) {
 	
 	const sendQuery = (query: QueryType)=> {
 		searcher.postMessage(query);
-		console.log(query);
+//		console.log(query);
 // 		setLoading(true);
 // 		if (!workerReady) return [];
 		

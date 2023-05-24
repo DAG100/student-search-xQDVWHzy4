@@ -1,5 +1,5 @@
 {
-  "name": "IITK Student Search",
+  "name": "Student Search IITK",
   "short_name": "Student Search",
   "icons": [
     {
@@ -19,9 +19,10 @@
       "type": "image/png"
     }
   ],
-  "theme_color": "#FFFFFF",
+  "theme_color": "#3F51B5",
   "background_color": "#FFFFFF",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait"
+  "description": "An app to view IITK students"
 }
