@@ -49,7 +49,7 @@ function TreeCard(props: TreeCardProps) {
 					}}
 				/>
 			)
-			: <Card>No bacchas :-\</Card>
+			: <Card>No bacchas</Card>
 			}
 			</div>
 		</div>
