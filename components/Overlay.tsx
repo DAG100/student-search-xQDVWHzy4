@@ -1,7 +1,7 @@
 import Modal from "@mui/material/Modal";
 import React, {useState, useEffect} from "react";
 import FadeAnim from "./fadeAnim";
-
+import GuestFooter from "./Treefooter";
 interface OverlayProps {
 	clearOverlay: Function;
 	children?: any | any[];
