@@ -2,8 +2,6 @@ import Paper from "@mui/material/Paper";
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import Image from "next/image";
-
 
 export default function GuestFooter() {
     return (
@@ -33,7 +31,7 @@ export default function GuestFooter() {
             }}
           >
             <div>
-                <Image priority src="/../public/cslogo.png" width={15} height={15} alt="Logo" />
+                <img src="/cslogo.png" width={15} height={15} alt="Logo" />
             </div>
             <Typography variant="caption">
                 Family tree data provided by <a href="https://www.iitk.ac.in/counsel/">Counselling Service IITK</a>
