@@ -110,86 +110,127 @@ async function fetch_student_data() { //WILL throw errors when something goes wr
 async function start_IDB() { //if this resolves, the global variable 'db' should contain a reference to the database - otherwise it should remain an empty string
 	return new Promise((resolve, reject) => {
 		db = "";
-		const openRequest = indexedDB.open("students", 1);
-		openRequest.addEventListener("error", (error) => {
-//			console.error("Failed to access local database.");
-//			console.log(error);
-			reject("Failed to access local database.");
-		}, {once: true});
-		openRequest.addEventListener("success", () => {
-//			console.log("Successfully opened IDB");
-			db = openRequest.result;
-			resolve("Success");
-		}, {once: true});
-		openRequest.addEventListener("upgradeneeded", (event) => {
-			//set up the DB, and if nothing goes wrong (i.e. no errors) then resolve successfully
-//			console.log("Setting up IDB");
-			db = event.target?.result;
-			const objStore = db.createObjectStore("students", {keyPath:"id", autoIncrement:true});
-			objStore.createIndex("students", "students", {unique: false}) //this will hold the array/json string of the response
-//			console.log("Finished setting up IDB");
-			//should trigger success event handler now, so we don't resolve the promise here
-		}, {once: true});
+		try {
+			const openRequest = indexedDB.open("students", 1);
+			openRequest.addEventListener("error", (error) => {
+	//			console.error("Failed to access local database.");
+	//			console.log(error);
+				reject("Failed to access local database.");
+			}, {once: true});
+			openRequest.addEventListener("success", () => {
+	//			console.log("Successfully opened IDB");
+				db = openRequest.result;
+				resolve("Success");
+			}, {once: true});
+			openRequest.addEventListener("upgradeneeded", (event) => {
+				//set up the DB, and if nothing goes wrong (i.e. no errors) then resolve successfully
+	//			console.log("Setting up IDB");
+				db = event.target?.result;
+				const objStore = db.createObjectStore("students", {keyPath:"id", autoIncrement:true});
+				objStore.createIndex("students", "students", {unique: false}) //this will hold the array/json string of the response
+	//			console.log("Finished setting up IDB");
+				//should trigger success event handler now, so we don't resolve the promise here
+			}, {once: true});
+		} catch (error) {
+			reject(error);
+		}
 	})
+}
+
+async function get_time_IDB() {
+	//gets the last time data was added to the IDB (stored right after the actual array)
+	//same caveats as for update_ and check_IDB
+	//returns 0 on error so that any updates definitely go through
+	return new Promise(async (resolve, reject) => {
+		try {
+			await start_IDB();
+			let req = db
+			.transaction(["students"], "readonly")
+			.objectStore("students")
+			.get(2);
+			req.onerror = (e) => {
+				resolve(0);
+			}
+			req.onsuccess = (e) => {
+				if (!req.result) resolve(0);
+				resolve(req.result.time);
+			}
+		} catch (error) {
+			resolve(0);
+		}
+	});
 }
 
 //both of these assume that 'db' has the reference to the IndexedDB after 'start_IDB()' finishes - otherwise, will throw errors
 async function update_IDB(students) {
-	await start_IDB();
-	//first: we get a cursor to see if there is already a record - if so, we delete it
-	//then, we store "students" into the DB
-	//this should all happen in one transaction so that if trxn fails, we don't end up with an empty DB or two items
-	let trxn = db.transaction(["students"], "readwrite");
-//	console.log("Opened transaction");
-	trxn.objectStore("students").openCursor().onsuccess = (event) => {
-		let cursor = event.target?.result;
-		if (cursor) {
-//			console.log("Deleting an entry");
-			trxn.objectStore("students").delete(cursor.value.id)
-			cursor.continue()
-		} else {
-			//no more entries left - so now we add the data from the global variable "students"
-//			console.log("All entries deleted");
-//			console.log("Adding students to DB");
-//			console.log(students);
-			trxn.objectStore("students").add({"students": students, "key":1});
-			
+	return new Promise(async (resolve, reject) => {
+		try {
+			await start_IDB();
+			//first: delete all records (there will be 2: students and time)
+			//then, we store parameter students and Date.now() into the DB
+			//this should all happen in one transaction so that if trxn fails, we don't end up with an empty DB or two items
+			let trxn = db.transaction(["students"], "readwrite");
+		//	console.log("Opened transaction");
+			trxn.objectStore("students").openCursor().onsuccess = (event) => {
+				let cursor = event.target?.result;
+				if (cursor) {
+		//			console.log("Deleting an entry");
+					trxn.objectStore("students").delete(cursor.value.id)
+					cursor.continue() //move onto next item
+				} else {
+					//no more entries left, so store data now
+		//			console.log("All entries deleted");
+		//			console.log("Adding students to DB");
+		//			console.log(students);
+					trxn.objectStore("students").add({"students": students, "key":1});
+					//add update time for future reference
+					trxn.objectStore("students").add({"time": Date.now(), "key": 2});
+				}
+			}
+			trxn.oncomplete = () => {
+		//		console.log("Student data successfully saved locally.");
+				resolve("Success");
+			}
+			trxn.onerror = (error) => {
+		//		console.error("Something went wrong when trying to update the local database.");
+		//		console.error(error);
+				reject(error);
+			}
+		} catch (error) {
+			reject(error);
 		}
-	}
-	trxn.oncomplete = () => {
-//		console.log("Student data successfully saved locally.");
-	}
-	trxn.onerror = (error) => {
-//		console.error("Something went wrong when trying to update the local database.");
-//		console.error(error);
-	}
+	});
 }
 
 async function check_IDB() {
 	return new Promise(async (resolve, reject) => {
-		await start_IDB();
-		//just get a cursor and see if the record is there - if yes, put it into the global variable "students" - if not, throw an error
-		let trxn = db.transaction(["students"],"readwrite")
-		trxn.objectStore("students").openCursor().onsuccess = (event) => {
-			let cursor = event.target?.result;
-			if (cursor) {//if there is an entry
-				if (!Array.isArray(cursor.value.students)) {reject("IDB entry is improper")}
-//				console.log("Found the students data locally");
-				resolve(cursor.value.students);
-	// 			console.log("Dumping value of students to console");
-	// 			console.log(cursor.value.students);
-			} else {
-				reject("IDB is empty.");
+		try {
+			await start_IDB();
+			//just get by key
+			let req = db
+			.transaction(["students"],"readonly")
+			.objectStore("students")
+			.get(1);
+			req.onerror = (e) => {
+				reject(e);
 			}
-		}
-		trxn.onerror = (error) => {
-//			console.error("Error occurred when trying to access IDB.");
+			req.onsuccess = () => {
+				if (!req.result) {
+					reject("No IDB entry");
+					return;
+				}
+				if (!Array.isArray(req.result.students)) {
+					reject("IDB entry is improper");
+					return;
+				}
+				
+				resolve(req.result.students);
+			}
+		} catch(error) {
 			reject(error);
 		}
-		//no need for an oncomplete handler
 	})
 }
-
 
 function prepare_worker() {//student data should be in a global variable called "students", and there should be a global variable "options" to take the list of options for everything
 //after filling the "options" variable, send "Worker ready" message and set up onmessage handler
@@ -243,63 +284,49 @@ function prepare_worker() {//student data should be in a global variable called 
 	postMessage(["Options", options]); //when worker processes everything it should send out options headers again
 }
 
-//actually do everything
-// (async function () {
-// 	try {
-// //		console.log("Trying to fetch data...");
-// 		students = await fetch_student_data();
-// //		console.log("Fetched data, updating IDB...");
-// 		update_IDB();
-// 	} catch (error) {
-// //		console.log("Failed to fetch data");
-// //		console.error(error)
-// 		try {
-// //			console.log("Checking if student data is locally available...")
-// 			students = await check_IDB(); //if there is an error here, everything should fail because nothing can be done
-// 		} catch (error) {
-// //			console.error("Something went wrong when checking for data locally.");
-// 			postMessage("Error"); //so that app knows something has gone wrong and can show an error message
-// 			throw error; //fail evarythang
-// 		}
-// 		
-// 	}
-// 	prepare_worker();
-// })(); //execute immediately
-
+//execute when starting
 (async function () {
-	let error_count = 0;
+	let noLocalData = false;
+	let cantGetData = false;
+	let time = 0;
 	try {
 		console.log("Grabbing data locally...");
 		students = await check_IDB();
+		time = await get_time_IDB();
+		console.log("Most recent data retrieval occurred on:");
+		console.log(time);
 		console.log("Preparing worker using local data...");
 		prepare_worker();
 	} catch (error) {
 		console.error("Failed to find data locally");
 		console.error(error);
-		error_count += 1;
+		noLocalData = true;
 	}
-	try {
-		console.log("Fetching data from API...");
-		new_students = await fetch_student_data();
-		if (new_students == undefined) {
-			throw new Error("Failed to fetch student data from DB")
+	if (noLocalData || Date.now() - time > 1000*60*60*24*7) {
+	//update data every week
+		try {
+			console.log("Fetching data from API...");
+			new_students = await fetch_student_data();
+			if (new_students == undefined) {
+				throw new Error("Failed to fetch student data from DB")
+			}
+			console.log("Updating local DB with API data...");
+			update_IDB(new_students);
+		} catch (error) {
+			console.error("Failed to fetch data from API and update local DB");
+			console.error(error);
+			cantGetData = true;
 		}
-		console.log("Updating local DB with API data...");
-		update_IDB(new_students);
-	} catch (error) {
-		console.error("Failed to fetch data from API and update local DB");
-		console.error(error);
-		error_count += 1;
-	}
-	if (new_students != undefined) {
-		console.log("New data was fetched, so re-preparing worker...");
-		students = new_students;
-		prepare_worker();
-	} else {
-		console.log("Failed to fetch new data, so worker was not re-prepared.");
+		if (new_students != undefined) {
+			console.log("New data was fetched, so re-preparing worker...");
+			students = new_students;
+			prepare_worker();
+		} else {
+			console.log("Failed to fetch new data, so worker was not re-prepared.");
+		}
 	}
 	
-	if (error_count === 2) {
+	if (noLocalData && cantGetData) {
 		postMessage("Error");
 		console.error("Could not find data locally or fetch it. This web app will not work.");
 	}
