@@ -55,7 +55,12 @@ function Display(props: DisplayProps) {
 // 	)
 	
 	if (props.loading) return (
-		<div><div id="count"><Card>Loading...</Card></div></div>
+		<div>
+			<div id="count">
+				<Card>Loading...</Card>
+				<div className="loader"></div>
+			</div>
+		</div>
 	);
 	
 	return (

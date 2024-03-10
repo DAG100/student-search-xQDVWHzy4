@@ -39,7 +39,8 @@ export default function Overlay(props: OverlayProps) {
 		<Modal
 			style={{
 				display:"flex",
-				overflow:"auto"
+				overflowY:"scroll",
+				scrollBehavior: "smooth",
 			}}
 			open={open}
 			onClick={closeModal}

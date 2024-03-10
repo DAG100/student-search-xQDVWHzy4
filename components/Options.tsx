@@ -1,5 +1,5 @@
-import React, {useState, useCallback, useEffect} from "react";
-import {InputLabel, TextField, Select, MenuItem, Paper, FormControl, InputAdornment, IconButton} from "@mui/material"
+import React, {useState, useCallback, useEffect, forwardRef} from "react";
+import {Grid, InputLabel, TextField, Select, MenuItem, Paper, FormControl, InputAdornment, IconButton} from "@mui/material"
 import {ClearRounded} from "@mui/icons-material"
 import MultiSelectField from "./msf";
 // import {data as listOpts} from "../components/student_data_getter.tsx";
@@ -30,7 +30,9 @@ interface OptionsProps {
 	loading: boolean;
 }
 
-function Options(props: OptionsProps) {
+
+
+function PreOptions (props: OptionsProps, ref: any) {
 // 	const [listOpts, setOpts]:[OptionsType, Function]= useState({
 // 		batch:[],
 // 		hall:[],
@@ -71,7 +73,8 @@ function Options(props: OptionsProps) {
 	
 	return (
 		<Paper className="options">
-			<div className="row">
+			<Grid container rowSpacing={4} columnSpacing={4} sx={{width:"100%"}}>
+			<Grid item xs={12} sm={6} md={4}>
 				<MultiSelectField 
 					disabled={props.loading} 
 					query={query}
@@ -79,8 +82,10 @@ function Options(props: OptionsProps) {
 					options={props.listOpts.batch}
 					setQuery={setQuery}
 				/>
-
-				<FormControl variant="filled" disabled={props.loading}>
+			</Grid>
+			<Grid item xs={12} sm={6} md={4}>
+				<div className="field">
+				<FormControl variant="filled" disabled={props.loading} sx={{width:"100%"}}>
 					<InputLabel id="gender-label">Gender</InputLabel>
 					<Select
 						className="field"
@@ -88,7 +93,6 @@ function Options(props: OptionsProps) {
 						value={query.gender}
 						onChange={(event) => {
 							setQuery({...query, gender:event.target.value});
-// 							props.sendQuery({...query, gender:event.target.value});
 						}}
 					>
 						<MenuItem value="">Any</MenuItem>
@@ -96,7 +100,9 @@ function Options(props: OptionsProps) {
 						<MenuItem value="M">Male</MenuItem>
 					</Select>
 				</FormControl>
-
+				</div>
+			</Grid>
+			<Grid item xs={12} sm={6} md={4}>
 				<MultiSelectField 
 					disabled={props.loading} 
 					query={query}
@@ -104,8 +110,8 @@ function Options(props: OptionsProps) {
 					options={props.listOpts.hall}
 					setQuery={setQuery}
 				/>
-			</div>
-			<div className="row">
+			</Grid>
+			<Grid item xs={12} sm={6} md={4}>
 				<MultiSelectField 
 					disabled={props.loading} 
 					query={query}
@@ -114,7 +120,8 @@ function Options(props: OptionsProps) {
 					options={props.listOpts.prog}
 					setQuery={setQuery}
 				/>
-			
+			</Grid>
+			<Grid item xs={12} sm={6} md={4}>
 				<MultiSelectField 
 					disabled={props.loading} 
 					query={query}
@@ -123,7 +130,8 @@ function Options(props: OptionsProps) {
 					options={props.listOpts.dept}
 					setQuery={setQuery}
 				/>
-			
+			</Grid>
+			<Grid item xs={12} sm={6} md={4}>
 				<MultiSelectField 
 					disabled={props.loading} 
 					query={query}
@@ -132,9 +140,9 @@ function Options(props: OptionsProps) {
 					options={props.listOpts.bloodgrp}
 					setQuery={setQuery}
 				/>
-			</div>
-			
-			<div className="row">
+			</Grid>
+			<Grid item xs={12}>
+				<div style={{margin:"auto", width:"fit-content"}}>
 				<FormControl variant="filled" disabled={props.loading}>
 					<TextField
 						disabled={props.loading}
@@ -147,8 +155,10 @@ function Options(props: OptionsProps) {
 						}}
 					/>
 				</FormControl>
-			</div>
-			<FormControl variant="filled" disabled={props.loading} className="row">
+				</div>
+			</Grid>
+			<Grid item xs={12}>
+			<FormControl variant="filled" disabled={props.loading} style={{width:"100%"}}>
 				<TextField
 					disabled={props.loading}
 					className="field main-text"
@@ -171,9 +181,15 @@ function Options(props: OptionsProps) {
 						setQuery({...query, name:event.target.value});
 // 						newsendQuery({...query, name:event.target.value});
 					}}
+					inputRef={ref}
+					autoFocus
 				/>
 			</FormControl>
+			</Grid>
+			</Grid>
 		</Paper>);
 }
+
+const Options = forwardRef(PreOptions);
 
 export default Options;

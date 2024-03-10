@@ -44,7 +44,16 @@ function TreeCard(props: TreeCardProps) {
 					compact={"ultra"}
 					data={el}
 					key={el.i}
-					onClick={()=>{
+					onClick={(e)=>{
+						//smoothly scroll to top
+						document.getElementsByClassName("MuiModal-root")[0].scrollTo(0,0);
+// 						let start = null;
+// 						let scroll = window
+// 						window.requestAnimationFrame(function step(currentTime) {
+// 							if (!start) start = currentTime;
+// 							
+// 						});
+						//actually show the card
 						props.displayCard(el);
 					}}
 				/>

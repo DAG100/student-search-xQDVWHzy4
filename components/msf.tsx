@@ -19,7 +19,8 @@ export default function MultiSelectField(props: MSFProps) {
 	
 	
 	return (//idea behind taking "query" from options is to lift state up
-	<FormControl variant="filled" className="field" disabled={props.disabled}>
+	<div className="field">
+	<FormControl variant="filled" disabled={props.disabled} sx={{width:"100%"}}>
 		<InputLabel id={`${props.name}-label`}>
 		{props.label === undefined 
 		? props.name[0].toUpperCase() + props.name.slice(1,props.name.length).toLowerCase()
@@ -40,5 +41,6 @@ export default function MultiSelectField(props: MSFProps) {
 			))}
 		</Select>
 	</FormControl>
+	</div>
 	);
 }

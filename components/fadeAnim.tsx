@@ -9,26 +9,6 @@ interface FadeAnimProps {
 }
 
 const  FadeAnim = React.forwardRef((props: FadeAnimProps, ref) => {
-// 	return (
-// 		<TransitionGroup 
-// 			style={props.style} 
-// 			className={props.myname}
-// 		>
-// 		{React.Children.map(props.children, (child) => {
-// 			return (
-// 				<CSSTransition
-// 					classNames="fade"
-// 					timeout={300}
-// 					mountOnEnter={true}
-// 					unmountOnExit={true}
-// 				>
-// 				{child}
-// 				</CSSTransition>
-// 			);
-// 		})}
-// 		</TransitionGroup>
-// 	);
-	
 	return (
 		<TransitionGroup 
 			style={props.style} 

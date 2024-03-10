@@ -3,7 +3,7 @@ import Card from "@mui/material/Card";
 import Button from "@mui/material/Button";
 import Image from "./UserImage";
 import {Student} from "./commontypes";
-import {EmailRounded, InvertColorsRounded, HomeRounded, AccountBalanceRounded, Public } from "@mui/icons-material";
+import {EmailRounded, InvertColorsRounded, HomeRounded, AccountBalanceRounded, Public, PeopleOutlineRounded } from "@mui/icons-material";
 //import "styles/SCard.css";
 
 
@@ -37,7 +37,14 @@ const SCard = React.forwardRef((props: SCardProps, ref:any) => {
 					<div className="data">
 						<p>{props.data.n}</p>
 						<p>{props.data.i}</p>
+						{Array.isArray(props.data.c) && props.data.c.length > 0 && <div style={{
+							width: "20px",
+							height: "20px"
+						}}>
+						<PeopleOutlineRounded />
+						</div>}
 					</div>
+					
 				</Card>
 			);
 		case true:
