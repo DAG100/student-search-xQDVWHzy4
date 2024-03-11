@@ -13,6 +13,7 @@ import {DarkModeSharp, LightModeRounded, HelpOutlineRounded, MailOutlineRounded}
 import TreeCard from "../components/treeSCard";
 import SCard from "../components/SCard";
 import {Student as StudentType, Query as QueryType, Options as OptType} from "../components/commontypes";
+import GuestFooter from "../components/Treefooter";
 
 //start shared search worker
 if (!(typeof window === "undefined") && window.Worker) {//only on the client, TODO: find better method - do when dealing w/ SSG
@@ -57,14 +58,19 @@ export default function Home(props: Object) {
 		if (event.data[0] == "ft") {
 // 			document.body.style.overflow = "hidden"; //hotfix
 			let [baapu, student, bacchas] = event.data[1];
-			setCurr(<TreeCard
+			setCurr([
+			<TreeCard
 				key="open"
 				data={student}
 				baapu={baapu /*TreeCard'll handle undefined*/}
 				bacchas={bacchas}
 				displayCard={displayCard}
 				clearOverlay={clearOverlay}
-			/>);
+			/>,
+			<div className="footer-absolute" key="footer">
+				<GuestFooter />
+			</div>
+			]);
 		}
 		
 	}
@@ -170,14 +176,14 @@ export default function Home(props: Object) {
 	
 	const displayElement = (element: any) => {
 		clearOverlay();
-		setCurr(element);
+		setCurr([element]);
 // 		document.body.style.overflow = "hidden"; //hotfix
 	}
 	
 	const displayCard = (student: StudentType) =>{
 		clearOverlay();
 // 		document.body.style.overflow = "hidden"; //hotfix
-		setCurr(<SCard
+		setCurr([<SCard
 			compact={false}
 			data={student}
 			key="closed"
@@ -185,7 +191,7 @@ export default function Home(props: Object) {
 		<Button
 			onClick={() => {displayTree(student);}}
 		>Open Family Tree</Button>
-		</SCard>);
+		</SCard>]);
 	}
 	
 	const displayTree = (student: StudentType) => {
