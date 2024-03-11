@@ -9,9 +9,6 @@ interface FadeAnimProps {
 }
 
 const  FadeAnim = React.forwardRef((props: FadeAnimProps, ref) => {
-	console.log("Logging children");
-	console.log(props.children);
-	console.log("logged children");
 	return (
 		<TransitionGroup 
 			style={props.style} 

@@ -126,7 +126,7 @@ async function start_IDB() { //if this resolves, the global variable 'db' should
 				//set up the DB, and if nothing goes wrong (i.e. no errors) then resolve successfully
 	//			console.log("Setting up IDB");
 				db = event.target?.result;
-				const objStore = db.createObjectStore("students", {keyPath:"id", autoIncrement:true});
+				const objStore = db.createObjectStore("students", {keyPath:"key", autoIncrement: false});
 				objStore.createIndex("students", "students", {unique: false}) //this will hold the array/json string of the response
 	//			console.log("Finished setting up IDB");
 				//should trigger success event handler now, so we don't resolve the promise here
@@ -175,7 +175,7 @@ async function update_IDB(students) {
 				let cursor = event.target?.result;
 				if (cursor) {
 		//			console.log("Deleting an entry");
-					trxn.objectStore("students").delete(cursor.value.id)
+					trxn.objectStore("students").delete(cursor.value.key)
 					cursor.continue() //move onto next item
 				} else {
 					//no more entries left, so store data now
