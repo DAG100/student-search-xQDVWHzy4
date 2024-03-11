@@ -36,7 +36,7 @@ yarn-error.log*
 next-env.d.ts
 
 #next-pwa
-/public/sw.js
+/public/sw.js*
 /public/workbox*
 
 #scripts
